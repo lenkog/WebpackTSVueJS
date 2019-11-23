@@ -16,7 +16,6 @@ First, we'll create the NPM package description, `package.json`, in the root of 
     "build": "webpack"
   }
 }
-
 ```
 The above gives a name to your project, "my-project", and a version, 1.0.0. The `private` property
 tells NPM that this project should not be published to the NPM package repository. Strictly speaking,
