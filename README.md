@@ -107,10 +107,7 @@ the browser.
 Setting up VueJS is easy enough. In the root of the project, run
 ```
 npm install vue
-npm install --save-dev @types/vue
 ```
-The second command installs the type definitions for VueJS so that we can use it conveniently
-from TypeScript.
 
 ### Using runtime with template compiler
 
@@ -181,20 +178,35 @@ npm run build
 ```
 Opening the `index.html` file in a browser will result in *Hello world!* being displayed on the page.
 
-### Using single-file .vue components
+### Using single-file components
 
-Another way to write Vue code is to use single-file .vue components rather than inlining in the HTML of the page.
+Another way to write Vue code is to use single-file components which bundle source code
+and the relevant HTML template in a .vue file.
 The VueJS template compiler will be invoked at build time and will not be needed at runtime.
 
 In the root of the project, run
 ```
-npm install --save-dev vue-loader vue-template-compiler
+npm install --save-dev vue-template-compiler vue-loader vue-class-component
 ```
-This adds to the project the VueJS template compiler and the component loader for Webpack.
+This adds to the project the VueJS template compiler, the component loader for Webpack,
+and the necessary TypeScript decorator so we can mark classes as Vue components.
+
+Because we will be using a decorator which is currently an experimental feature of TypeScript,
+we need to allow it explicitly in the `tsconfig.json` file:
+```
+{
+    "compilerOptions": {
+        "module": "es6",
+        "moduleResolution": "node",
+        "experimentalDecorators": true,
+    }
+}
+```
 
 Now, we need to reconfigure Webpack. First, we can remove the alias for the VueJS runtime
 because the default runtime will suffice. Second, we need to tell Webpack to use the
-corresponding loader for .vue components.
+corresponding loader for .vue components. Third, we need to instruct the TypeScript
+loader to also handle .vue files because they contain TypeScript code.
 ```
 const path = require('path');
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
@@ -210,7 +222,14 @@ module.exports = {
             {
                 test: /\.tsx?$/,
                 exclude: /node_modules/,
-                use: 'ts-loader',
+                use: [
+                    {
+                        loader: 'ts-loader',
+                        options: {
+                            appendTsSuffixTo: [/\.vue$/],
+                        },
+                    },
+                ],
             },
             {
                 test: /\.vue$/,
@@ -236,11 +255,25 @@ declare module '*.vue' {
 Now, we can create a simple .vue component, `App.vue`, under the `src` subfolder:
 ```
 <template>
-  <div>
-    Hello world!
-  </div>
+    <div>{{message}}</div>
 </template>
+
+<script lang="ts">
+import Vue from "vue";
+import Component from "vue-class-component";
+
+@Component({})
+export default class App extends Vue {
+    message = "Hello world!";
+}
+</script>
 ```
+The `template` section contain the code for the Vue template. The `script` section contains
+the source code for the component (note also the `lang="ts"` attribute of the tag).
+This app is very similar to the one from the previous example. However, here we demonstrate also
+how to turn classes into Vue components via the `@Component` annotation. The properties of the
+class will become available for use in the template.
+
 
 Then, we change the `main.ts` file to make use of the component:
 ```
