@@ -67,6 +67,9 @@ module.exports = {
         filename: 'main.js',
         path: path.resolve(__dirname, 'dist'),
     },
+    resolve: {
+        extensions: [".ts", ".js"],
+    },
     module: {
         rules: [
             {
@@ -79,7 +82,10 @@ module.exports = {
 };
 ```
 This is a very basic configuration and the only extra thing is that we tell Webpack to use
-the TypeScript loader when handling TypeScript files.
+the TypeScript loader when handling TypeScript files, as well as to consider files with
+the ".ts" and ".js" extensions when looking up modules. The latter is needed because in TypeScript
+modules are imported without specifying the extension and by default Webpack would not be able
+to find the corresponding files.
 
 Finally, we need to configure TypeScript using the `tsconfig.json` file in the root of the project:
 ```
@@ -125,6 +131,9 @@ module.exports = {
     output: {
         filename: 'main.js',
         path: path.resolve(__dirname, 'dist'),
+    },
+    resolve: {
+        extensions: [".ts", ".js"],
     },
     module: {
         rules: [
@@ -216,6 +225,9 @@ module.exports = {
     output: {
         filename: 'main.js',
         path: path.resolve(__dirname, 'dist'),
+    },
+    resolve: {
+        extensions: [".ts", ".js"],
     },
     module: {
         rules: [
